@@ -33,6 +33,11 @@ class UserViewSet(viewsets.ModelViewSet):
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    @action(detail=False, methods=['get'])
+    def user(self, req):
+        user = UserSerializer(req.user).data
+        return response.Response(user)
+    
     @action(detail=False, methods=['post'])
     def register(self, req):
         body = req.data
@@ -56,6 +61,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return response.Response({"error" : "Password required"}, status=404)
 
         user = authenticate(username=username, password=password)
+        user_data = UserSerializer(user).data
 
         if(not user):
             return response.Response({
@@ -64,7 +70,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
         token, created = Token.objects.get_or_create(user=user)
         return response.Response({
-            'token' : 'Token %s' % token.key
+            'token' : 'Token %s' % token.key,
+            'user' : user_data
         })
         
 class RoomViewSet(viewsets.ModelViewSet):

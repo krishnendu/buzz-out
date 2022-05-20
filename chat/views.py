@@ -103,6 +103,11 @@ class RoomViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         room = get_object_or_404(queryset, pk=pk)
         return response.Response(RoomMessagesSerializer(room).data)
+    
+    @action(detail=True, methods=['get'])
+    def messages(self, request, pk=None):
+        messages = Message.objects.filter(room_id=pk)
+        return response.Response(MessageSerializer(messages, many=True).data)
         
 
 class MessageViewSet(viewsets.ModelViewSet):

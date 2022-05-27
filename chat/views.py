@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.shortcuts import get_object_or_404, render
 from chat.serializers import UserSerializer, RoomMessagesSerializer, RoomSerializer, MessageSerializer
 from chat.models import Room, Message
@@ -37,6 +38,15 @@ class UserViewSet(viewsets.ModelViewSet):
     def user(self, req):
         user = UserSerializer(req.user).data
         return response.Response(user)
+    
+    @action(detail=False, methods=['get'])
+    def filter(self, req):
+        queryset = self.get_queryset()
+        username = req.query_params.get('username[startswith]')
+        if username:
+            queryset = queryset.exclude(id=req.user.id).filter(username__istartswith=username)
+        users = UserSerializer(queryset, many=True).data
+        return response.Response(users)
     
     @action(detail=False, methods=['post'])
     def register(self, req):
@@ -88,7 +98,9 @@ class RoomViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-updated_at')
     
     def create(self, request):
-        serializer = RoomSerializer(data=request.data)
+        data = request.data
+        data['users'] = data.get('users', list()) + [request.user.id]
+        serializer = RoomSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return response.Response(serializer.data)

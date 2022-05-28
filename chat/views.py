@@ -147,6 +147,10 @@ class MessageViewSet(viewsets.ModelViewSet):
                 "type": "chat_message",
                 "message": json.dumps(serializer.data),
             })
+            async_to_sync(channel_layer.group_send)("user_%d" % request.user.id, {
+                "type": "chat_message",
+                "message": json.dumps(serializer.data),
+            })
             
             if room.message_set.all().count() > room.total_chat_limit:
                 room.message_set.all().order_by('created_at').first().delete()

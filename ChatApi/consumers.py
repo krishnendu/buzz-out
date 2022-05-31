@@ -47,7 +47,7 @@ class UserChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user_id = self.scope['url_route']['kwargs']['user_id']
         # self.user = self.scope["user"]
-        self.user_group_name = 'user_%d' % self.user_id
+        self.user_group_name = 'user_%s' % self.user_id
 
         # Join user group
         await self.channel_layer.group_add(

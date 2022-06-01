@@ -33,7 +33,7 @@ class Message(models.Model):
         extension = ''
         if len(filename.rsplit('.', 1))>1:
             extension = '.' + filename.rsplit('.', 1)[1]
-        return 'docs/user_{0}/{1}'.format(instance.user.id, (uuid.uuid3(uuid.NAMESPACE_DNS, filename).hex + extension))
+        return 'docs/user_{0}/{1}'.format(instance.sent_by.id, (uuid.uuid3(uuid.NAMESPACE_DNS, filename).hex + extension))
 
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     message = models.TextField(null=True, default=None)

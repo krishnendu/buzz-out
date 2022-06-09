@@ -1,6 +1,8 @@
+from lib2to3.pgen2 import token
 from django.db import models
 from django.conf import settings
 import uuid
+import secrets 
 
 # from django.dispatch import receiver
 # from django.db.models.signals import post_save
@@ -19,6 +21,7 @@ class Room(models.Model):
     )
     total_chat_limit = models.PositiveSmallIntegerField()
     theme = models.CharField(max_length=100, null=True)
+    secret = models.CharField(max_length=512, default=secrets.token_hex)
     extra_fields = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

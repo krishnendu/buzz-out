@@ -34,6 +34,9 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = '__all__'
+        extra_kwargs = {
+            'secret': {'required': False},
+        }
 
 class MessageSerializer(serializers.ModelSerializer):
     extra_fields = JsonListField(required=False, allow_null=True, default=None)

@@ -68,7 +68,6 @@ class UserViewSet(viewsets.ModelViewSet):
         if token:
             cache_key = "forget_password_token_%s" % token
             email = cache.get(cache_key)
-            print(email)
             user = None
             if email:
                 user = User.objects.filter(email=email).first()
@@ -80,6 +79,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     return response.Response({'error': "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     user.set_password(password)
+                    user.save()
                     return response.Response({'success': "Password changed"}, status=status.HTTP_200_OK)
         else:
             user = User.objects.filter(**body).first()
@@ -89,13 +89,13 @@ class UserViewSet(viewsets.ModelViewSet):
                 if not user.email:
                     return response.Response({'error': "User doesn't have an email"}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    token = str(uuid.uuid4())
+                    token = uuid.uuid4().hex
                     cache_key = "forget_password_token_%s" % token
                     cache.set(cache_key, user.email, 60 * 60 * 2) # 2 hours
-                    url = req.META['HTTP_HOST'] + '/api/v1/user/forget_password/?token=%s' % token
+                    url = req.META['HTTP_HOST'] + '/forget-password/%s' % token
                     send_mail(
                         'Buzz-Out Forget password',
-                        'You can change the password by clicking the following link: %s\n token : %s' % (url, token),
+                        'You can change the password by clicking the following link: %s' % url,
                         settings.EMAIL_HOST_USER,
                         [user.email],
                         fail_silently=False,

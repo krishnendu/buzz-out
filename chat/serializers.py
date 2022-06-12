@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from chat.models import Room, Message
 
-from rest_framework import serializers
+from rest_framework import serializers, validators
 from ChatApi.custom_serializers import JsonListField
 
 class UserSerializer(serializers.ModelSerializer):
@@ -10,6 +10,9 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ['groups', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'user_permissions']
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
+            'email': {'validators': [validators.UniqueValidator(queryset=User.objects.all())], },
+            'username': {'max_length': 20, 'min_length': 4},
+            'date_joined': {'read_only': True}
         }
     
     def create(self, validated_data):

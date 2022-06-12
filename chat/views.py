@@ -1,9 +1,12 @@
-from unicodedata import name
+import uuid
 from django.shortcuts import get_object_or_404, render
 from chat.serializers import UserSerializer, RoomMessagesSerializer, RoomSerializer, MessageSerializer
 from chat.models import Room, Message
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.core.cache import cache
+from django.core.mail import send_mail
+from django.conf import settings
 from asgiref.sync import async_to_sync
 
 from rest_framework.authtoken.models import Token
@@ -28,7 +31,7 @@ class UserViewSet(viewsets.ModelViewSet):
         Instantiates and returns the list of permissions that this view requires.
         """
 
-        if self.action in ['register', 'login']:
+        if self.action in ['register', 'login', 'forget_password']:
             permission_classes = [permissions.AllowAny]
         else:
             permission_classes = [permissions.IsAuthenticated]
@@ -57,6 +60,48 @@ class UserViewSet(viewsets.ModelViewSet):
             return response.Response(user_serializer.data)
         else:
             return response.Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def forget_password(self, req):
+        body = req.data
+        token = req.query_params.get('token')
+        if token:
+            cache_key = "forget_password_token_%s" % token
+            email = cache.get(cache_key)
+            print(email)
+            user = None
+            if email:
+                user = User.objects.filter(email=email).first()
+            if not user:
+                return response.Response({'error': "User doesn't exist, please regenerate url"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                password = body.get('password')
+                if not password:
+                    return response.Response({'error': "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    user.set_password(password)
+                    return response.Response({'success': "Password changed"}, status=status.HTTP_200_OK)
+        else:
+            user = User.objects.filter(**body).first()
+            if not user :
+                return response.Response({'error': "User doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if not user.email:
+                    return response.Response({'error': "User doesn't have an email"}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    token = str(uuid.uuid4())
+                    cache_key = "forget_password_token_%s" % token
+                    cache.set(cache_key, user.email, 60 * 60 * 2) # 2 hours
+                    url = req.META['HTTP_HOST'] + '/api/v1/user/forget_password/?token=%s' % token
+                    send_mail(
+                        'Buzz-Out Forget password',
+                        'You can change the password by clicking the following link: %s\n token : %s' % (url, token),
+                        settings.EMAIL_HOST_USER,
+                        [user.email],
+                        fail_silently=False,
+                    )
+                    return response.Response({'success': "Mail has been sent"}, status=status.HTTP_200_OK)
+
 
     @action(detail=False, methods=['post'])
     def login(self, req):

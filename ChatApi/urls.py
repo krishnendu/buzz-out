@@ -24,12 +24,15 @@ urlpatterns = [
     path('djangoadmin/', admin.site.urls),
     path('api/v1/', include('ChatApi.routers')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('', TemplateView.as_view(template_name="react_home.html")),
-    re_path(r'^chat/?$', TemplateView.as_view(template_name="react_home.html")),
-    re_path(r'^signup/?$', TemplateView.as_view(template_name="react_home.html")),
-    re_path(r'^forget-password/(?P<token>[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}\Z)/?$', TemplateView.as_view(template_name="react_home.html")),
-    re_path(r'^404/?$', TemplateView.as_view(template_name="react_home.html")),
+    # path('', TemplateView.as_view(template_name="react_home.html")),
+    # re_path(r'^chat/?$', TemplateView.as_view(template_name="react_home.html")),
+    # re_path(r'^signup/?$', TemplateView.as_view(template_name="react_home.html")),
+    # re_path(r'^crypto/?$', TemplateView.as_view(template_name="react_home.html")),
+    # re_path(r'^forget-password/(?P<token>[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}\Z)/?$', TemplateView.as_view(template_name="react_home.html")),
+    # re_path(r'^404/?$', TemplateView.as_view(template_name="react_home.html")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns += static(settings.REACT_URL, document_root=settings.REACT_ROOT)
+# urlpatterns += static(settings.REACT_URL, document_root=settings.REACT_ROOT)
+
+handler404 = TemplateView.as_view(template_name="react_home.html")

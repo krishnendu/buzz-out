@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-%)0hd%xfn9vbxgu_7n48m2vxpj2dl2^@bw2#eg@1iqw(vwanyt'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', 'buzz-out.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -161,8 +161,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'priyajash11@gmail.com'
-EMAIL_HOST_PASSWORD = 'sopwmxxypqahadki'
+EMAIL_HOST_USER = 'krishnenduwebserver@gmail.com'
+EMAIL_HOST_PASSWORD = 'ggryiiemctorbfog'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -177,6 +177,7 @@ STATIC_URL = '/static/'
 # STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+WHITENOISE_ROOT = 'react'
 
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = '/media/'
